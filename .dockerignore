@@ -1,0 +1,13 @@
+.git
+.idea
+.vscode
+.fvm
+build
+.dart_tool
+.gradle
+.pub-cache
+.packages
+ios/Pods
+android/.gradle
+android/local.properties
+**/.DS_Store

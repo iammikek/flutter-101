@@ -33,6 +33,32 @@ List devices:
 flutter devices
 ```
 
+### Android (emulator)
+
+To run on Android you need the **Android SDK** installed (via Android Studio). If `flutter doctor` says it can’t find the SDK, install Android Studio and then install:
+
+- Android SDK Platform
+- Android SDK Build-Tools
+- Android Emulator
+
+Then create and start an emulator:
+
+```bash
+flutter emulators
+flutter emulators --launch <emulator-id>
+```
+
+Run the app:
+
+```bash
+flutter run -d <emulator-id>
+```
+
+Important: on the Android emulator, **your Mac’s `localhost` is `10.0.2.2`**.
+So if your FastAPI is running on `http://localhost:8000` on your Mac, set the Flutter base URL to:
+
+- `http://10.0.2.2:8000`
+
 Run on iPhone 13 Simulator:
 
 ```bash
@@ -59,4 +85,18 @@ Open **Settings** (top-right):
 
 ```bash
 flutter test
+```
+
+### Integration tests (Android / iOS)
+
+Run on iPhone Simulator:
+
+```bash
+flutter test integration_test -d "iPhone 13"
+```
+
+Run on Android emulator (replace with your emulator id from `flutter devices`):
+
+```bash
+flutter test integration_test -d <emulator-id>
 ```

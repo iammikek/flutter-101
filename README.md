@@ -60,10 +60,3 @@ Open **Settings** (top-right):
 ```bash
 flutter test
 ```
-
-### FastAPI
-
-```bash
-cd /Users/mike/Projects/fastAPI-101
-pytest
-```

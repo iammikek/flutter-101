@@ -32,7 +32,7 @@ class MockApiClient {
     final items = await getItemsTyped();
     final found = items.where((e) => e.id == id).toList();
     await Future<void>.delayed(const Duration(milliseconds: 150));
-    return found.isNotEmpty ? found.first : Item(id: id, name: 'Unknown', price: null);
+    return found.isNotEmpty ? found.first : Item(id: id, name: 'Unknown', price: 0.0);
   }
 
   Future<Item> createItem(Item item) async {
@@ -43,7 +43,7 @@ class MockApiClient {
   Future<Item> updateItem(int id, Item item) async {
     await Future<void>.delayed(const Duration(milliseconds: 200));
     return Item(id: id, name: item.name, price: item.price);
-    }
+  }
 
   Future<bool> deleteItem(int id) async {
     await Future<void>.delayed(const Duration(milliseconds: 150));

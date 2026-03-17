@@ -140,9 +140,12 @@ class _HomePageState extends State<HomePage> {
                   onPressed: _loading
                       ? null
                       : () {
-                          final name = 'New Item';
-                          final price = 1.0;
-                          _call(() => _api.createItem(Item(name: name, price: price)), 'POST /items');
+                          const name = 'New Item';
+                          const price = 1.0;
+                          _call(
+                            () => _api.createItem(Item(name: name, price: price)),
+                            'POST /items',
+                          );
                         },
                   child: const Text('Create Item'),
                 ),

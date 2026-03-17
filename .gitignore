@@ -29,6 +29,11 @@ windows/flutter/ephemeral/
 .flutter-plugins
 .flutter-plugins-dependencies
 .flutter-versions
+.metadata
 
 # FVM
 .fvm/
+
+# Node (if present)
+node_modules/
+yarn.lock

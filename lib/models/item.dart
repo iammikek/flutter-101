@@ -1,9 +1,17 @@
 class Item {
   final int? id;
   final String name;
-  final double? price;
+  final String? description;
+  final double price;
+  final String? category;
 
-  Item({this.id, required this.name, this.price});
+  Item({
+    this.id,
+    required this.name,
+    this.description,
+    required this.price,
+    this.category,
+  });
 
   factory Item.fromJson(Map<String, dynamic> json) {
     final idVal = json['id'];
@@ -11,9 +19,9 @@ class Item {
     return Item(
       id: idVal is num ? idVal.toInt() : (idVal is String ? int.tryParse(idVal) : null),
       name: (json['name'] ?? '').toString(),
-      price: priceVal is num
-          ? priceVal.toDouble()
-          : (priceVal is String ? double.tryParse(priceVal) : null),
+      description: json['description']?.toString(),
+      price: priceVal is num ? priceVal.toDouble() : (double.tryParse('$priceVal') ?? 0.0),
+      category: json['category']?.toString(),
     );
   }
 
@@ -21,7 +29,9 @@ class Item {
     return {
       if (id != null) 'id': id,
       'name': name,
-      if (price != null) 'price': price,
+      'description': description,
+      'price': price,
+      'category': category,
     };
   }
 }

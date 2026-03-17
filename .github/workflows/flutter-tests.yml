@@ -1,0 +1,77 @@
+name: Flutter tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: flutter test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Run unit/widget tests
+        run: flutter test
+
+  integration_ios:
+    name: integration_test (iOS simulator)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Pick an iOS simulator device
+        id: pick_device
+        shell: bash
+        run: |
+          flutter devices --machine > devices.json
+          python3 - <<'PY'
+          import json
+          data = json.load(open("devices.json", "r", encoding="utf-8"))
+          ios_sims = [
+              d for d in data
+              if d.get("platform") == "ios" and d.get("emulator") is True
+          ]
+          if not ios_sims:
+              raise SystemExit("No iOS simulator found in `flutter devices` output.")
+          # Prefer a phone-like simulator if possible.
+          def score(d):
+              name = (d.get("name") or "").lower()
+              s = 0
+              if "iphone" in name: s += 10
+              if "ipad" in name: s += 1
+              return s
+          ios_sims.sort(key=score, reverse=True)
+          chosen = ios_sims[0]
+          device_id = chosen["id"]
+          print(f"Chosen simulator: {chosen.get('name')} ({device_id})")
+          with open("device_id.txt", "w", encoding="utf-8") as f:
+              f.write(device_id)
+          PY
+          echo "DEVICE_ID=$(cat device_id.txt)" >> "$GITHUB_ENV"
+
+      - name: Run iOS integration tests
+        run: flutter test integration_test -d "$DEVICE_ID"
+

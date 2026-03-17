@@ -42,35 +42,53 @@ jobs:
       - name: Flutter pub get
         run: flutter pub get
 
-      - name: Pick an iOS simulator device
-        id: pick_device
+      - name: Xcode setup
         shell: bash
         run: |
-          flutter devices --machine > devices.json
+          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+          sudo xcodebuild -license accept
+          sudo xcodebuild -runFirstLaunch
+
+      - name: Boot an iOS simulator
+        shell: bash
+        run: |
           python3 - <<'PY'
-          import json
-          data = json.load(open("devices.json", "r", encoding="utf-8"))
-          ios_sims = [
-              d for d in data
-              if d.get("platform") == "ios" and d.get("emulator") is True
-          ]
-          if not ios_sims:
-              raise SystemExit("No iOS simulator found in `flutter devices` output.")
-          # Prefer a phone-like simulator if possible.
-          def score(d):
-              name = (d.get("name") or "").lower()
-              s = 0
-              if "iphone" in name: s += 10
-              if "ipad" in name: s += 1
-              return s
-          ios_sims.sort(key=score, reverse=True)
-          chosen = ios_sims[0]
-          device_id = chosen["id"]
-          print(f"Chosen simulator: {chosen.get('name')} ({device_id})")
-          with open("device_id.txt", "w", encoding="utf-8") as f:
-              f.write(device_id)
+          import json, subprocess
+
+          def sh(cmd: str) -> str:
+            return subprocess.check_output(cmd, shell=True, text=True).strip()
+
+          devices = json.loads(sh("xcrun simctl list -j devices available"))
+          all_devices = []
+          for runtime, devs in devices.get("devices", {}).items():
+            for d in devs:
+              # Prefer iOS runtimes; filter out watches/tvs etc.
+              if "iOS" not in runtime:
+                continue
+              name = d.get("name", "")
+              if "iphone" not in name.lower():
+                continue
+              all_devices.append((runtime, d))
+
+          if not all_devices:
+            raise SystemExit("No available iPhone simulators found via simctl.")
+
+          # Prefer the newest runtime by string sort (good enough for CI).
+          all_devices.sort(key=lambda x: x[0], reverse=True)
+          runtime, dev = all_devices[0]
+          udid = dev["udid"]
+          name = dev.get("name", "iPhone")
+          print(f"Booting simulator: {name} ({udid}) runtime={runtime}")
+
+          sh(f"xcrun simctl boot '{udid}' || true")
+          sh(f"xcrun simctl bootstatus '{udid}' -b")
+          print(udid)
+          with open("DEVICE_ID", "w", encoding="utf-8") as f:
+            f.write(udid)
           PY
-          echo "DEVICE_ID=$(cat device_id.txt)" >> "$GITHUB_ENV"
+
+          echo "DEVICE_ID=$(cat DEVICE_ID)" >> "$GITHUB_ENV"
+          open -a Simulator --args -CurrentDeviceUDID "$DEVICE_ID" || true
 
       - name: Run iOS integration tests
         run: flutter test integration_test -d "$DEVICE_ID"

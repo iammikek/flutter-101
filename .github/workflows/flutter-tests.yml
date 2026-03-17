@@ -32,6 +32,7 @@ jobs:
   integration_ios:
     name: integration_test (iOS simulator)
     runs-on: macos-latest
+    timeout-minutes: 35
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -50,7 +51,14 @@ jobs:
         run: |
           sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
           sudo xcodebuild -license accept
-          sudo xcodebuild -runFirstLaunch
+          xcodebuild -version
+
+      - name: Diagnostics
+        shell: bash
+        run: |
+          flutter --version
+          flutter doctor -v
+          xcrun simctl list devices available | head -n 50
 
       - name: Boot an iOS simulator
         shell: bash
@@ -91,8 +99,7 @@ jobs:
           PY
 
           echo "DEVICE_ID=$(cat DEVICE_ID)" >> "$GITHUB_ENV"
-          open -a Simulator --args -CurrentDeviceUDID "$DEVICE_ID" || true
 
       - name: Run iOS integration tests
-        run: flutter test integration_test -d "$DEVICE_ID"
+        run: flutter test integration_test -d "$DEVICE_ID" --timeout 10m
 

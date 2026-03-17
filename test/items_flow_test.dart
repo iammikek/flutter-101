@@ -48,5 +48,41 @@ void main() {
     // Navigated back to list page.
     expect(find.text('Items'), findsOneWidget);
   });
+
+  testWidgets('Delete item shows confirmation; cancel keeps detail', (WidgetTester tester) async {
+    await tester.pumpWidget(const FastApiFlutterApp());
+    await tester.pumpAndSettle();
+
+    // Tap first list item (mock data has "Widget").
+    await tester.tap(find.text('Widget'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Widget'), findsWidgets);
+    await tester.tap(find.text('Delete (requires API key)'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Delete item?'), findsOneWidget);
+    expect(find.text('Are you sure? This cannot be undone.'), findsOneWidget);
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Delete item?'), findsNothing);
+    expect(find.text('Widget'), findsWidgets);
+  });
+
+  testWidgets('Delete item confirm pops back to list', (WidgetTester tester) async {
+    await tester.pumpWidget(const FastApiFlutterApp());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Widget'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Delete (requires API key)'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('confirm_delete')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Items'), findsOneWidget);
+  });
 }
 

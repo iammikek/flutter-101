@@ -6,7 +6,7 @@ import 'package:integration_test/integration_test.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('iOS integration: settings + create item flow (mock)', (tester) async {
+  testWidgets('integration: settings + create item flow (mock)', (tester) async {
     await tester.pumpWidget(const FastApiFlutterApp());
     await tester.pumpAndSettle();
 
@@ -35,6 +35,23 @@ void main() {
 
     // Back on list.
     expect(find.text('Items'), findsOneWidget);
+  });
+
+  testWidgets('integration: delete confirmation dialog cancel', (tester) async {
+    await tester.pumpWidget(const FastApiFlutterApp());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Widget'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Delete (requires API key)'));
+    await tester.pumpAndSettle();
+    expect(find.text('Delete item?'), findsOneWidget);
+
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(find.text('Delete item?'), findsNothing);
+    expect(find.text('Widget'), findsWidgets);
   });
 }
 

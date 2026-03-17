@@ -73,10 +73,7 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                     FilledButton.tonalIcon(
                       onPressed: store.loading
                           ? null
-                          : () async {
-                              await context.read<ItemsStore>().delete(widget.itemId);
-                              if (context.mounted) Navigator.of(context).pop();
-                            },
+                          : () => _confirmDelete(context),
                       icon: const Icon(Icons.delete_outline),
                       label: const Text('Delete (requires API key)'),
                     ),
@@ -87,6 +84,30 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                   ],
                 ),
     );
+  }
+
+  Future<void> _confirmDelete(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete item?'),
+        content: const Text('Are you sure? This cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            key: const Key('confirm_delete'),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (!context.mounted || confirmed != true) return;
+    await context.read<ItemsStore>().delete(widget.itemId);
+    if (context.mounted) Navigator.of(context).pop();
   }
 
   Widget _kv(BuildContext context, String k, String v) {

@@ -52,7 +52,21 @@ class _ItemCreatePageState extends State<ItemCreatePage> {
   Widget build(BuildContext context) {
     final store = context.watch<ItemsStore>();
     return Scaffold(
-      appBar: AppBar(title: const Text('Create item')),
+      appBar: AppBar(
+        title: const Text('Create item'),
+        actions: [
+          TextButton(
+            onPressed: store.loading ? null : _submit,
+            child: store.loading
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text('Create'),
+          ),
+        ],
+      ),
       body: Form(
         key: _formKey,
         child: ListView(
@@ -92,21 +106,9 @@ class _ItemCreatePageState extends State<ItemCreatePage> {
               minLines: 2,
               maxLines: 5,
             ),
-            const SizedBox(height: 24),
-            FilledButton(
-              onPressed: store.loading ? null : _submit,
-              child: store.loading
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Create'),
-            ),
           ],
         ),
       ),
     );
   }
 }
-

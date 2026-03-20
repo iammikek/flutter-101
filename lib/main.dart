@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 
 import 'app/api_service.dart';
@@ -7,7 +8,9 @@ import 'items/items_repository.dart';
 import 'items/items_store.dart';
 import 'pages/items/items_list_page.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   runApp(const FastApiFlutterApp());
 }
 
@@ -141,7 +144,7 @@ class FastApiFlutterApp extends StatelessWidget {
             backgroundColor: Color(0xFF007AFF),
             foregroundColor: Colors.white,
             elevation: 2,
-            shape: CircleBorder(), // FABs are often circles in modern iOS/Material hybrids
+            shape: CircleBorder(),
           ),
           cardTheme: const CardThemeData(
             color: Colors.white,

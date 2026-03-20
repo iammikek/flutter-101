@@ -37,3 +37,9 @@ windows/flutter/ephemeral/
 # Node (if present)
 node_modules/
 yarn.lock
+package-lock.json
+
+# Environment Secrets
+.env
+.env.local
+.env.production

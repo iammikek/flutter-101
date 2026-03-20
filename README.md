@@ -14,6 +14,18 @@ This is a fundamentals Flutter project that builds a simple **frontend** for the
 - Flutter SDK installed (`flutter doctor` is clean)
 - FastAPI backend available locally (see below)
 
+## Configuration
+
+The app uses `flutter_dotenv` for configuration.
+
+1.  Copy `.env.example` to `.env`:
+    ```bash
+    cp .env.example .env
+    ```
+2.  Edit `.env` to match your local setup (e.g., change `BASE_URL` for Android emulators).
+
+*Note: `.env` is excluded from source control to prevent leaking sensitive information.*
+
 ## Run the FastAPI backend
 
 From the backend repo:

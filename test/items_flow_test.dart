@@ -33,6 +33,7 @@ void main() {
     expect(find.text('Create item'), findsOneWidget);
 
     // Try submit empty -> shows validation errors.
+    // In iOS style, "Create" is in the AppBar (TextButton)
     await tester.tap(find.text('Create'));
     await tester.pumpAndSettle();
     expect(find.text('Name is required'), findsOneWidget);
@@ -58,7 +59,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Widget'), findsWidgets);
-    await tester.tap(find.text('Delete (requires API key)'));
+    // Delete is now an IconButton with delete icon in the AppBar
+    await tester.tap(find.byIcon(Icons.delete_outline));
     await tester.pumpAndSettle();
 
     expect(find.text('Delete item?'), findsOneWidget);
@@ -77,7 +79,7 @@ void main() {
     await tester.tap(find.text('Widget'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Delete (requires API key)'));
+    await tester.tap(find.byIcon(Icons.delete_outline));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('confirm_delete')));
     await tester.pumpAndSettle();
@@ -85,4 +87,3 @@ void main() {
     expect(find.text('Items'), findsOneWidget);
   });
 }
-

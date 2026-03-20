@@ -1,17 +1,16 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AppConfig extends ChangeNotifier {
-  AppConfig({
-    String baseUrl = 'http://localhost:8000',
-    String apiKey = 'dev-key-123',
-    bool useMock = true,
-  })  : _baseUrl = baseUrl,
-        _apiKey = apiKey,
-        _useMock = useMock;
+  AppConfig() {
+    _baseUrl = dotenv.get('BASE_URL', fallback: 'http://localhost:8000');
+    _apiKey = dotenv.get('API_KEY', fallback: 'dev-key-123');
+    _useMock = dotenv.get('USE_MOCK', fallback: 'true').toLowerCase() == 'true';
+  }
 
-  String _baseUrl;
-  String _apiKey;
-  bool _useMock;
+  late String _baseUrl;
+  late String _apiKey;
+  late bool _useMock;
 
   String get baseUrl => _baseUrl;
   String get apiKey => _apiKey;
@@ -35,4 +34,3 @@ class AppConfig extends ChangeNotifier {
     notifyListeners();
   }
 }
-

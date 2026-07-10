@@ -1,37 +1,63 @@
-class Item {
-  final int? id;
-  final String name;
-  final String? description;
-  final double price;
-  final String? category;
+import 'category.dart';
 
-  Item({
+class Item {
+  const Item({
     this.id,
     required this.name,
     this.description,
     required this.price,
+    this.categoryId,
     this.category,
   });
 
+  final int? id;
+  final String name;
+  final String? description;
+  final double price;
+  final int? categoryId;
+  final Category? category;
+
+  String get categoryLabel => category?.name ?? (categoryId == null ? 'Uncategorized' : 'Category #$categoryId');
+
   factory Item.fromJson(Map<String, dynamic> json) {
-    final idVal = json['id'];
-    final priceVal = json['price'];
+    final categoryJson = json['category'];
     return Item(
-      id: idVal is num ? idVal.toInt() : (idVal is String ? int.tryParse(idVal) : null),
+      id: _asInt(json['id']),
       name: (json['name'] ?? '').toString(),
       description: json['description']?.toString(),
-      price: priceVal is num ? priceVal.toDouble() : (double.tryParse('$priceVal') ?? 0.0),
-      category: json['category']?.toString(),
+      price: _asDouble(json['price']),
+      categoryId: _asInt(json['category_id']),
+      category: categoryJson is Map<String, dynamic> ? Category.fromJson(categoryJson) : null,
     );
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toCreateJson() {
     return {
-      if (id != null) 'id': id,
       'name': name,
-      'description': description,
+      if (description != null && description!.isNotEmpty) 'description': description,
       'price': price,
-      'category': category,
+      if (categoryId != null) 'category_id': categoryId,
     };
   }
+
+  Map<String, dynamic> toUpdateJson() {
+    return {
+      if (name.isNotEmpty) 'name': name,
+      'description': description,
+      'price': price,
+      'category_id': categoryId,
+    };
+  }
+}
+
+int? _asInt(dynamic value) {
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  if (value is String) return int.tryParse(value);
+  return null;
+}
+
+double _asDouble(dynamic value) {
+  if (value is num) return value.toDouble();
+  return double.tryParse('$value') ?? 0;
 }

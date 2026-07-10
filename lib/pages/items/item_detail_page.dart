@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../app/app_config.dart';
+import '../../auth/auth_store.dart';
 import '../../items/items_store.dart';
 import '../../models/item.dart';
+import 'item_form_page.dart';
 
 class ItemDetailPage extends StatefulWidget {
   const ItemDetailPage({super.key, required this.itemId});
@@ -41,18 +44,28 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
   @override
   Widget build(BuildContext context) {
     final store = context.watch<ItemsStore>();
+    final config = context.watch<AppConfig>();
+    final auth = context.watch<AuthStore>();
+    final canWrite = auth.isAuthenticated || config.useMock;
     final item = _item;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(item?.name ?? 'Item ${widget.itemId}'),
         actions: [
-          IconButton(
-            tooltip: 'Refresh',
-            onPressed: _load,
-            icon: const Icon(Icons.refresh),
-          ),
-          if (item != null)
+          IconButton(tooltip: 'Refresh', onPressed: _load, icon: const Icon(Icons.refresh)),
+          if (item != null && canWrite)
+            IconButton(
+              tooltip: 'Edit',
+              onPressed: () async {
+                final updated = await Navigator.of(context).push<bool>(
+                  MaterialPageRoute(builder: (_) => ItemEditPage(item: item)),
+                );
+                if (updated == true && mounted) await _load();
+              },
+              icon: const Icon(Icons.edit_outlined),
+            ),
+          if (item != null && canWrite)
             IconButton(
               tooltip: 'Delete',
               onPressed: store.loading ? null : () => _confirmDelete(context),
@@ -70,16 +83,11 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                   children: [
                     Text(item.name, style: Theme.of(context).textTheme.headlineSmall),
                     const SizedBox(height: 8),
-                    Text('\$${item.price.toStringAsFixed(2)}',
-                        style: Theme.of(context).textTheme.titleLarge),
+                    Text('\$${item.price.toStringAsFixed(2)}', style: Theme.of(context).textTheme.titleLarge),
                     const SizedBox(height: 12),
-                    _kv(context, 'Category', item.category?.isNotEmpty == true ? item.category! : '—'),
+                    _kv(context, 'Category', item.categoryLabel),
                     const SizedBox(height: 8),
                     _kv(context, 'Description', item.description?.isNotEmpty == true ? item.description! : '—'),
-                    if (store.error != null) ...[
-                      const SizedBox(height: 12),
-                      Text(store.error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
-                    ],
                   ],
                 ),
     );
@@ -92,10 +100,7 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
         title: const Text('Delete item?'),
         content: const Text('Are you sure? This cannot be undone.'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
           FilledButton(
             key: const Key('confirm_delete'),
             onPressed: () => Navigator.of(ctx).pop(true),
@@ -109,18 +114,15 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
       ),
     );
     if (!context.mounted || confirmed != true) return;
-    await context.read<ItemsStore>().delete(widget.itemId);
-    if (context.mounted) Navigator.of(context).pop();
+    final ok = await context.read<ItemsStore>().delete(widget.itemId);
+    if (context.mounted && ok) Navigator.of(context).pop();
   }
 
   Widget _kv(BuildContext context, String k, String v) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          width: 96,
-          child: Text(k, style: Theme.of(context).textTheme.labelLarge),
-        ),
+        SizedBox(width: 96, child: Text(k, style: Theme.of(context).textTheme.labelLarge)),
         Expanded(child: Text(v)),
       ],
     );

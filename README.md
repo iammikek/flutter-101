@@ -1,114 +1,73 @@
-# flutter-101 (FastAPI client)
+# flutter-101 (*-101 Flutter client)
 
-This is a fundamentals Flutter project that builds a simple **frontend** for the companion FastAPI project at `/Users/mike/Projects/fastAPI-101`.
+Step-by-step **Flutter** client for the *-101 items API — same JSON contract as [fastAPI-101](https://github.com/iammikek/fastAPI-101), [nest-101](https://github.com/iammikek/nest-101), and [express-101](https://github.com/iammikek/express-101).
 
-## What’s inside
+**Audience:** Mobile/desktop developers learning how a Laravel-style API maps to a client app (JWT auth, categories, paginated items, stats).
 
-- **Flutter app**: iPhone Simulator + macOS desktop targets
-- **Mock vs Live API**: toggle in-app to develop UI without the backend running
-- **Example feature**: Items list + detail + create + delete
-  - Delete requires an API key header (`x-api-key`)
+## API coverage
+
+| Area | Endpoints | UI |
+|------|-----------|-----|
+| Health | `GET /`, `GET /health` | Via API client (settings / live mode) |
+| Auth | `POST /auth/register`, `POST /auth/login`, `GET /auth/me` | Sign-in page |
+| Categories | Full CRUD + list/detail | Categories tab |
+| Items | List (filters, pagination), detail, create, **edit**, delete | Items tab |
+| Stats | `GET /items/stats/summary` | Stats tab |
+
+Writes use **JWT Bearer** tokens (like Laravel Sanctum). Reads are public. **Mock mode** works without signing in; **live mode** requires login for create/update/delete.
 
 ## Prerequisites
 
-- Flutter SDK installed (`flutter doctor` is clean)
-- FastAPI backend available locally (see below)
+- Flutter SDK (`flutter doctor` clean)
+- A running *-101 API (e.g. fastAPI-101 on port 8000)
 
 ## Configuration
 
-The app uses `flutter_dotenv` for configuration.
+```bash
+cp .env.example .env
+```
 
-1.  Copy `.env.example` to `.env`:
-    ```bash
-    cp .env.example .env
-    ```
-2.  Edit `.env` to match your local setup (e.g., change `BASE_URL` for Android emulators).
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `BASE_URL` | `http://localhost:8000` | API root |
+| `USE_MOCK` | `true` | Local fake data vs live API |
 
-*Note: `.env` is excluded from source control to prevent leaking sensitive information.*
+Android emulator: use `http://10.0.2.2:8000` for `BASE_URL`.
 
-## Run the FastAPI backend
-
-From the backend repo:
+## Run the backend
 
 ```bash
-cd /Users/mike/Projects/fastAPI-101
+cd ../fastAPI-101
 uvicorn main:app --reload --port 8000
 ```
 
-The API should be available at `http://localhost:8000`.
-
-## Run the Flutter app
-
-List devices:
+## Run the app
 
 ```bash
-flutter devices
+flutter pub get
+flutter run -d macos   # or iPhone simulator / Android emulator
 ```
-
-### Android (emulator)
-
-To run on Android you need the **Android SDK** installed (via Android Studio). If `flutter doctor` says it can’t find the SDK, install Android Studio and then install:
-
-- Android SDK Platform
-- Android SDK Build-Tools
-- Android Emulator
-
-Then create and start an emulator:
-
-```bash
-flutter emulators
-flutter emulators --launch <emulator-id>
-```
-
-Run the app:
-
-```bash
-flutter run -d <emulator-id>
-```
-
-Important: on the Android emulator, **your Mac’s `localhost` is `10.0.2.2`**.
-So if your FastAPI is running on `http://localhost:8000` on your Mac, set the Flutter base URL to:
-
-- `http://10.0.2.2:8000`
-
-Run on iPhone 13 Simulator:
-
-```bash
-flutter run -d "iPhone 13"
-```
-
-Run on macOS desktop:
-
-```bash
-flutter run -d macos
-```
-
-### In-app settings
-
-Open **Settings** (top-right):
-
-- **Use mock data**: ON uses local fake data, OFF calls FastAPI
-- **Base URL**: `http://localhost:8000`
-- **API Key**: default dev key is `dev-key-123` (sent as `x-api-key`)
 
 ## Tests
-
-### Flutter
 
 ```bash
 flutter test
 ```
 
-### Integration tests (Android / iOS)
+## Laravel mapping
 
-Run on iPhone Simulator:
+| Laravel | Flutter client |
+|---------|----------------|
+| Sanctum / session | JWT Bearer in `Authorization` header |
+| Blade views | Flutter widgets (Material) |
+| Form Request validation | Form validators + API 422 responses |
+| Eloquent relationships | `category_id` + nested `category` on items |
+| `paginate()` | `skip` / `limit` + `total` metadata |
 
-```bash
-flutter test integration_test -d "iPhone 13"
-```
+## Related *-101 repos
 
-Run on Android emulator (replace with your emulator id from `flutter devices`):
+Pair this client with any API-only backend: **fastAPI-101** (8000), **nest-101** (8006), **express-101** (8007), or **go-101**.
 
-```bash
-flutter test integration_test -d <emulator-id>
-```
+For server-rendered shop UIs, see **laravel-101**, **symfony-101**, **django-101**, or **orchestr-101**.
+
+For a web SPA client, see **vue-101**.

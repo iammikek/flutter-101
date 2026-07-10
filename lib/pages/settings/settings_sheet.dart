@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../app/app_config.dart';
+import '../../auth/auth_store.dart';
 
 class SettingsSheet extends StatefulWidget {
   const SettingsSheet({super.key});
@@ -12,26 +13,24 @@ class SettingsSheet extends StatefulWidget {
 
 class _SettingsSheetState extends State<SettingsSheet> {
   late final TextEditingController _baseUrlCtrl;
-  late final TextEditingController _apiKeyCtrl;
 
   @override
   void initState() {
     super.initState();
     final config = context.read<AppConfig>();
     _baseUrlCtrl = TextEditingController(text: config.baseUrl);
-    _apiKeyCtrl = TextEditingController(text: config.apiKey);
   }
 
   @override
   void dispose() {
     _baseUrlCtrl.dispose();
-    _apiKeyCtrl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final config = context.watch<AppConfig>();
+    final auth = context.watch<AuthStore>();
     final bottom = MediaQuery.of(context).viewInsets.bottom;
 
     return SafeArea(
@@ -48,7 +47,7 @@ class _SettingsSheetState extends State<SettingsSheet> {
               value: config.useMock,
               onChanged: config.setUseMock,
               title: const Text('Use mock data'),
-              subtitle: const Text('Turn off to call FastAPI'),
+              subtitle: const Text('Turn off to call a live *-101 API'),
             ),
             const SizedBox(height: 8),
             TextField(
@@ -58,16 +57,17 @@ class _SettingsSheetState extends State<SettingsSheet> {
                 hintText: 'http://localhost:8000',
               ),
               onChanged: config.setBaseUrl,
-              textInputAction: TextInputAction.next,
+              textInputAction: TextInputAction.done,
             ),
             const SizedBox(height: 12),
-            TextField(
-              controller: _apiKeyCtrl,
-              decoration: const InputDecoration(
-                labelText: 'API Key (x-api-key)',
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(auth.isAuthenticated ? 'Signed in as ${auth.user?.email}' : 'Not signed in'),
+              subtitle: const Text('Required for create, update, and delete'),
+              trailing: TextButton(
+                onPressed: auth.isAuthenticated ? auth.logout : null,
+                child: const Text('Sign out'),
               ),
-              onChanged: config.setApiKey,
-              textInputAction: TextInputAction.done,
             ),
             const SizedBox(height: 16),
             Row(
@@ -85,4 +85,3 @@ class _SettingsSheetState extends State<SettingsSheet> {
     );
   }
 }
-

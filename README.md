@@ -138,6 +138,7 @@ Query params on `GET /items`: `skip`, `limit`, `category_id`, `name_contains`.
 | [fortran-101](https://github.com/iammikek/fortran-101) | 8008 | API-only | Fortran, fpm |
 | [java-101](https://github.com/iammikek/java-101) | 8009 | API-only | Spring Boot, JPA, Flyway |
 | [dotNet-101](https://github.com/iammikek/dotNet-101) | 8010 | API-only | ASP.NET Core, xUnit |
+| [flask-101](https://github.com/iammikek/flask-101) | 8011 | API-only | Flask, pytest |
 \* go-101 also uses port 8000 — run one backend at a time, or change port in config.
 
 ### Other clients
@@ -147,6 +148,7 @@ Query params on `GET /items`: `skip`, `limit`, `category_id`, `name_contains`.
 | **flutter-101** | Mobile / desktop | Flutter (iOS, macOS, Android) |
 | [react-101](https://github.com/iammikek/react-101) | Web browser | React 19, Vite, Vitest |
 | [vue-101](https://github.com/iammikek/vue-101) | Web browser | Vue 3, Vite, Pinia |
+| [alpine-101](https://github.com/iammikek/alpine-101) | Web browser | Alpine.js, Vite, Vitest |
 
 ### Suggested pairing
 

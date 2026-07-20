@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 
 import '../models/item.dart';
-import '../models/paginated.dart';
 import 'items_repository.dart';
 
 class ItemsStore extends ChangeNotifier {

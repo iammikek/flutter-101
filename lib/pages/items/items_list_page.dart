@@ -8,7 +8,6 @@ import '../../items/items_store.dart';
 import '../../models/category.dart';
 import '../auth/login_page.dart';
 import 'item_detail_page.dart';
-import 'item_form_page.dart';
 
 class ItemsListPage extends StatefulWidget {
   const ItemsListPage({super.key});
